@@ -18,7 +18,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     services.register(middlewares)
 
     // Configure a MySQL database
-    let mysql = try MySQLDatabase(config: MySQLDatabaseConfig(
+    let mysql = MySQLDatabase(config: MySQLDatabaseConfig(
         hostname: "sotarsoft.pl",
         port: 3306,
         username: "domomat_coffeenow",
@@ -30,6 +30,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
 
     // Register the configured SQLite database to the database config.
     var databases = DatabasesConfig()
+    databases.enableLogging(on: .mysql)
     databases.add(database: mysql, as: .mysql)
     services.register(databases)
 
