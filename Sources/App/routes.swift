@@ -15,6 +15,10 @@ public func routes(_ router: Router) throws {
     let userController = UserController()
     router.post("signup", use: userController.signup)
     router.get("signin", use: userController.signinpre)
-    router.post("signin", use: userController.signincom)
 
+    let sessionRouter = router.grouped(XSessionIdMiddleware())
+    sessionRouter.post("signin", use: userController.signincom)
+
+    let protectedRouter = router.grouped(UserMiddleware())
+    protectedRouter.get("client", use: userController.client)
 }

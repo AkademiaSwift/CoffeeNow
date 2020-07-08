@@ -9,7 +9,7 @@ final class CoffeeHouseController {
 
     func location(_ req: Request) throws -> Future<[CoffeeHouseLocationReply]> {
         let coffeeHouseID = try req.parameters.next(Int.self)
-        return CoffeeHouse.find(coffeeHouseID, on: req).unwrap(or: Abort(.notFound)).flatMap { coffeeHouse in
+        return CoffeeHouse.find(coffeeHouseID, on: req).unwrap(or: Abort(.conflict)).flatMap { coffeeHouse in
             return try coffeeHouse.locations.query(on: req).all().flatMap(to: [CoffeeHouseLocationReply].self) { locations in
                 return Future.map(on: req) { return locations.map { return CoffeeHouseLocationReply(location: $0) }
                 }
