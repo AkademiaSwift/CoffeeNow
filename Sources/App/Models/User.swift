@@ -1,4 +1,4 @@
-import FluentSQLite
+import FluentMySQL
 import Vapor
 
 enum GenderType: String {
@@ -36,8 +36,8 @@ extension GenderType: Codable {
     }
 }
 
-final class User: SQLiteModel {
-    typealias Database = SQLiteDatabase
+final class User: MySQLModel {
+    typealias Database = MySQLDatabase
 
     var id: Int?
     var appID: String

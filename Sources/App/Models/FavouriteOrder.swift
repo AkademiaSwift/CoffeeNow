@@ -1,8 +1,8 @@
-import FluentSQLite
+import FluentMySQL
 import Vapor
 
-final class FavouriteOrder: SQLiteModel {
-    typealias Database = SQLiteDatabase
+final class FavouriteOrder: MySQLModel {
+    typealias Database = MySQLDatabase
     
     var id: Int?
     var name: String

@@ -1,4 +1,4 @@
-import FluentSQLite
+import FluentMySQL
 import Vapor
 
 enum PaymentMethodType: String {
@@ -84,8 +84,8 @@ extension OrderStatusType: Codable {
     }
 }
 
-final class Order: SQLiteModel {
-    typealias Database = SQLiteDatabase
+final class Order: MySQLModel {
+    typealias Database = MySQLDatabase
     
     var id: Int?
     var orderId: String

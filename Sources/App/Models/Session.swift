@@ -1,8 +1,8 @@
-import FluentSQLite
+import FluentMySQL
 import Vapor
 
-final class Session: SQLiteUUIDModel {
-    typealias Database = SQLiteDatabase
+final class Session: MySQLUUIDModel {
+    typealias Database = MySQLDatabase
     
     var id: UUID?
     var transportKey: String

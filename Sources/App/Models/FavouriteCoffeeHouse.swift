@@ -1,8 +1,8 @@
-import FluentSQLite
+import FluentMySQL
 import Vapor
 
-final class FavouriteCoffeeHouse: SQLitePivot {
-    typealias Database = SQLiteDatabase
+final class FavouriteCoffeeHouse: MySQLPivot {
+    typealias Database = MySQLDatabase
     
     typealias Left = CoffeeHouse
     typealias Right = User

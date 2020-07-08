@@ -1,8 +1,8 @@
-import FluentSQLite
+import FluentMySQL
 import Vapor
 
-final class Piggy: SQLiteModel {
-    typealias Database = SQLiteDatabase
+final class Piggy: MySQLModel {
+    typealias Database = MySQLDatabase
     
     var id: Int?
     var balance: Decimal

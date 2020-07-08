@@ -1,8 +1,8 @@
-import FluentSQLite
+import FluentMySQL
 import Vapor
 
-final class ProductIngredient: SQLiteModel {
-    typealias Database = SQLiteDatabase
+final class ProductIngredient: MySQLModel {
+    typealias Database = MySQLDatabase
 
     var id: Int?
     var name: String

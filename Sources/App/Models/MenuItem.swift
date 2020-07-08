@@ -1,8 +1,8 @@
-import FluentSQLite
+import FluentMySQL
 import Vapor
 
-final class MenuItem: SQLitePivot {
-    typealias Database = SQLiteDatabase
+final class MenuItem: MySQLPivot {
+    typealias Database = MySQLDatabase
     
     typealias Left = MenuCategory
     typealias Right = Product
