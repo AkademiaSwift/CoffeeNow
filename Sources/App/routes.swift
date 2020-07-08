@@ -6,7 +6,8 @@ public func routes(_ router: Router) throws {
         return "It works!"
     }
     
-    
+    let coffeeHouseController = CoffeeHouseController()
+    router.get("coffeehouses", use: coffeeHouseController.index)
 
     // Example of configuring a controller
    /* let todoController = TodoController()
