@@ -19,17 +19,23 @@ final class CoffeeHouseController {
     
     func menu(_ req: Request) throws -> Future<CoffeeHouseMenuReply> {
         let coffeeHouseID = try req.parameters.next(Int.self)
+        
+        let logger = try req.make(Logger.self)
+        logger.info("Logger created!")
+        
         return CoffeeHouse.find(coffeeHouseID, on: req).unwrap(or: Abort(.notFound)).flatMap { coffeeHouse in
             return try coffeeHouse.menus.query(on: req).all().flatMap(to: CoffeeHouseMenuReply.self) { menuCategories in
-                var productMaps: [Int: [ProductShortReply]] = [:]
+
+                var productMaps: [Int: [Product]] = [:]
+                var additionalMaps: [Int: [ProductAdditionalReply]] = [:]
+                var sizeMaps: [Int: [ProductSizeReply]] = [:]
+                var ingredientMaps: [Int: [ProductIngredientReply]] = [:]
+                var subFutures: [EventLoopFuture<Void>] = []
                 
                 let futures = try menuCategories.map { menuCategory in
                     return try menuCategory.products.query(on: req).all().map(to: Void.self) { products in
+                        productMaps[menuCategory.id ?? 0] = products
                         
-                        var additionalMaps: [Int: [ProductAdditionalReply]] = [:]
-                        var sizeMaps: [Int: [ProductSizeReply]] = [:]
-                        var ingredientMaps: [Int: [ProductIngredientReply]] = [:]
-
                         let additionalfutures = try products.map { product in
                             return try product.additionals.query(on: req).all().map(to: Void.self) { additionals in
                                 additionalMaps[product.id ?? 0] = additionals.map { addintional in
@@ -55,27 +61,26 @@ final class CoffeeHouseController {
                             }
                         }
                         
-                        let allFutures = additionalfutures + sizefutures + ingredientfutures
-                        _ = EventLoopFuture<Void>.andAll(allFutures, eventLoop: req.eventLoop).map(to: Void.self) {
-                            _ in
-                            
-                            let products = products.map { product in
-                                return ProductShortReply(id: product.id ?? 0, name: product.name, photoUrl: product.photoUrl, shortDescription: product.shortDescription, ingredients: ingredientMaps[product.id ?? 0] ?? [], sizes: sizeMaps[product.id ?? 0] ?? [], additionals: additionalMaps[product.id ?? 0] ?? [])
-                            }
-                            productMaps[menuCategory.id ?? 0] = products
-                            return
-                        }
-                        
+                        subFutures += additionalfutures + sizefutures + ingredientfutures
                         return
                     }
                 }
                 
-                return EventLoopFuture<Void>.andAll(futures, eventLoop: req.eventLoop).map(to: CoffeeHouseMenuReply.self) { _ in
-                    
-                    let categories = menuCategories.map { menuCategory in
-                        return CoffeeHouseMenu(id: menuCategory.id ?? 0, name: menuCategory.name, products: productMaps[menuCategory.id ?? 0] ?? [])
+                return EventLoopFuture<Void>.andAll(futures, eventLoop: req.eventLoop).flatMap(to: CoffeeHouseMenuReply.self) { _ in
+                    return EventLoopFuture<Void>.andAll(subFutures, eventLoop: req.eventLoop).map(to: CoffeeHouseMenuReply.self) {
+                        _ in
+                        
+                        var cats: [CoffeeHouseMenu] = []
+                        for menuCategory in menuCategories {
+                            let productDB: [Product] = productMaps[menuCategory.id ?? 0] ?? []
+                            let products = productDB.map { product in
+                                return ProductShortReply(id: product.id ?? 0, name: product.name, photoUrl: product.photoUrl, shortDescription: product.shortDescription, ingredients: ingredientMaps[product.id ?? 0] ?? [], sizes: sizeMaps[product.id ?? 0] ?? [], additionals: additionalMaps[product.id ?? 0] ?? [])
+                            }
+                            cats.append(CoffeeHouseMenu(id: menuCategory.id ?? 0, name: menuCategory.name, products: products))
+                        }
+                        return CoffeeHouseMenuReply(categories: cats)
+
                     }
-                    return CoffeeHouseMenuReply(categories: categories)
                 }
             }
         }

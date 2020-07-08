@@ -9,7 +9,7 @@ final class Session: MySQLUUIDModel {
     var expired: Date
     var userID: Int?
     
-    init(id: UUID? = nil, appID: String, userID: Int?) {
+    init(id: UUID? = nil, userID: Int?) {
         self.id = id
         self.userID = userID
         self.transportKey = Session.randomTransportKey(length: 32)
