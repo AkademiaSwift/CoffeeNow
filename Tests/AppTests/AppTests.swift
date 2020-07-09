@@ -110,8 +110,8 @@ final class AppTests: XCTestCase {
         let empty: EmptyBody? = nil
         var headers = HTTPHeaders()
         headers.add(name: "X-Session-Id", value: sessionId!)
-        let photo = try app.sendRequest(to: "client/setPhoto", method: .PUT, headers: headers, body: empty)
-        XCTAssertEqual(photo.http.status, HTTPStatus.ok)
+        let paycards = try app.sendRequest(to: "paycards", method: .GET, headers: headers, body: empty)
+        _ = try paycards.content.decode([PaycardListReply].self).wait()
         XCTAssert(true)
     }
     
@@ -119,6 +119,16 @@ final class AppTests: XCTestCase {
         let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
         XCTAssertNotNil(sessionId)
     
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId!)
+        let setPin1 = try app.sendRequest(to: "paycard/add", method: .GET, headers: headers, body: empty)
+        let firstStepReply = try setPin1.content.decode(SetPinOneReply.self).wait()
+        
+        let paycard = PaycardAddTwoRequest(type: "VISA", name: "Visa Elektron z Sercem", holderName: "Jan Nowak", numberCrypto: "asdasdasdasdasdasdasd", expired: "12/20", ccv2: "142")
+        let paycardReq = try app.sendRequest(to: "paycard/add", method: .POST, headers: headers, body: paycard)
+        XCTAssertEqual(paycardReq.http.status, HTTPStatus.ok)
+        
         XCTAssert(true)
     }
 
@@ -126,6 +136,11 @@ final class AppTests: XCTestCase {
         let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
         XCTAssertNotNil(sessionId)
     
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId!)
+        let paycards = try app.sendRequest(to: "paycard/1", method: .DELETE, headers: headers, body: empty)
+        XCTAssertEqual(paycards.http.status, .ok)
         XCTAssert(true)
     }
 
@@ -153,6 +168,11 @@ final class AppTests: XCTestCase {
         let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
         XCTAssertNotNil(sessionId)
     
+        let test = [1]
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId!)
+        let coffeehouses = try app.sendRequest(to: "favouriteCoffeehouses", method: .POST, headers: headers, body: test)
+        XCTAssertEqual(coffeehouses.http.status, HTTPStatus.ok)
         XCTAssert(true)
     }
     
@@ -167,6 +187,11 @@ final class AppTests: XCTestCase {
         let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
         XCTAssertNotNil(sessionId)
     
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId!)
+        let coffeehouses = try app.sendRequest(to: "favouriteCoffeehouses", method: .GET, headers: headers, body: empty)
+        _ = try coffeehouses.content.decode([Int].self).wait()
         XCTAssert(true)
     }
     
@@ -174,6 +199,11 @@ final class AppTests: XCTestCase {
         let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
         XCTAssertNotNil(sessionId)
     
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId!)
+        let piggies = try app.sendRequest(to: "piggy", method: .GET, headers: headers, body: empty)
+        _ = try piggies.content.decode(PiggyBalanceReply.self).wait()
         XCTAssert(true)
     }
     
@@ -181,6 +211,11 @@ final class AppTests: XCTestCase {
         let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
         XCTAssertNotNil(sessionId)
     
+        let block = PiggyUpdateRequest(balance: 10, balanceCurrency: "PLN")
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId!)
+        let piggies = try app.sendRequest(to: "piggy", method: .POST, headers: headers, body: block)
+        XCTAssertEqual(piggies.http.status, HTTPStatus.ok)
         XCTAssert(true)
     }
     

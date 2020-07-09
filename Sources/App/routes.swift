@@ -34,10 +34,10 @@ public func routes(_ router: Router) throws {
     protectedRouter.get("paycards", use: paycardController.index)
     protectedRouter.get("paycard/add", use: paycardController.addpre)
     protectedRouter.post("paycard/add", use: paycardController.addcom)
-    protectedRouter.delete("paycard", Int.parameter, use: paycardController.delete)
+    protectedRouter.delete("paycard", Paycard.parameter, use: paycardController.delete)
     
-    protectedRouter.get("favouriteCoffehouses", use: coffeeHouseController.favourite)
-    protectedRouter.post("favouriteCoffehouses", use: coffeeHouseController.modifyFavourite)
+    protectedRouter.get("favouriteCoffeehouses", use: coffeeHouseController.favourite)
+    protectedRouter.post("favouriteCoffeehouses", use: coffeeHouseController.modifyFavourite)
 
     let orderController = OrderController()
     protectedRouter.get("orders", use: orderController.index)

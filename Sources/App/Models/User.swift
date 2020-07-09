@@ -90,4 +90,7 @@ extension User {
     var favouriteOrders: Children<User, FavouriteOrder> {
         return children(\.userID)
     }
+    var favouriteCoffeeHouses: Siblings<User, CoffeeHouse, FavouriteCoffeeHouse> {
+        return siblings()
+    }
 }

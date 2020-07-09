@@ -9,11 +9,16 @@ final class PiggyController {
         return Session.find(uuidSessionId, on: req).unwrap(or: Abort(.forbidden)).flatMap { session in
             return session.user.get(on: req).flatMap { user in
                 return Piggy.query(on: req).filter(\.userID, .equal, user.id ?? 0).all().map { piggies in
-                    var lastUpdate = Date()
+                    var lastUpdate = piggies.count > 0 ? Date(timeIntervalSinceNow: -365 * 24 * 60 * 60) : Date()
                     var balance = Decimal.zero
                     var balanceString = "PLN"
-                    
-                    
+                    for piggy in piggies {
+                        balance += piggy.balance
+                        balanceString = piggy.currency
+                        if lastUpdate < piggy.createdAt {
+                            lastUpdate = piggy.createdAt
+                        }
+                    }
                     return PiggyBalanceReply(balance: balance, balanceCurrency: balanceString, lastUpdate: lastUpdate)
                 }
             }

@@ -28,4 +28,7 @@ extension CoffeeHouse {
     var menus: Children<CoffeeHouse, MenuCategory> {
         return children(\.coffeehouseID)
     }
+    var users: Siblings<CoffeeHouse, User, FavouriteCoffeeHouse> {
+        return siblings()
+    }
 }

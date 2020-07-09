@@ -95,11 +95,43 @@ final class CoffeeHouseController {
         }
     }
     
-    func favourite(_ req: Request) throws -> HTTPStatus {
-        return HTTPStatus.ok
+    func favourite(_ req: Request) throws -> Future<[Int]> {
+        let sessionId = req.http.headers.firstValue(name: HTTPHeaderName("X-Session-Id")) ?? ""
+        guard let uuidSessionId = UUID(sessionId) else { throw Abort(.forbidden) }
+        return Session.find(uuidSessionId, on: req).unwrap(or: Abort(.forbidden)).flatMap { session in
+            return session.user.get(on: req).flatMap { user in
+                return try user.favouriteCoffeeHouses.query(on: req).all().map { coffeeHouses in
+                    return coffeeHouses.map { item in
+                        return item.id ?? 0
+                    }
+                }
+            }
+        }
     }
     
-    func modifyFavourite(_ req: Request) throws -> HTTPStatus {
-        return HTTPStatus.ok
+    func modifyFavourite(_ req: Request) throws -> Future<HTTPStatus> {
+        let sessionId = req.http.headers.firstValue(name: HTTPHeaderName("X-Session-Id")) ?? ""
+        guard let uuidSessionId = UUID(sessionId) else { throw Abort(.forbidden) }
+        return Session.find(uuidSessionId, on: req).unwrap(or: Abort(.forbidden)).flatMap { session in
+            return session.user.get(on: req).flatMap { user in
+                return try req.content.decode([Int].self).flatMap { contents in
+                    return req.withPooledConnection(to: .mysql) { conn in
+                        return conn.raw("DELETE FROM CoffeeHouse_User WHERE userID=\(user.id ?? 0)").all().flatMap { _ in
+                            
+                            var futures: [EventLoopFuture<Void>] = []
+                            for coffeeHouseId in contents {
+                                let newItem = FavouriteCoffeeHouse(coffeeHouseID: coffeeHouseId, userID: user.id ?? 0)
+                                futures.append(newItem.save(on: req).map { _ in return })
+                            }
+                            return EventLoopFuture<Void>.andAll(futures, eventLoop: req.eventLoop).map(to: HTTPStatus.self) { _ in
+                                return HTTPStatus.ok
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
     }
+
 }
