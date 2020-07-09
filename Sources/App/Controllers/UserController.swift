@@ -34,7 +34,7 @@ final class UserController {
                         session.userID = user.id ?? -1
                         return session.save(on: req).map { _ in
                             
-                            return SignInTwoReply(fullName: user.fullName, phoneNumber: user.phoneNumber, city: user.city, birthDay: user.birthDay, gender: user.gender, piggy: balance, currency: piggies.first?.currency ?? "PLN")
+                            return SignInTwoReply(fullName: user.fullName, phoneNumber: user.phoneNumber, city: user.city, birthDay: user.birthDay, gender: user.gender, piggy: balance, currency: piggies.first?.currency ?? "PLN", photoBase: user.photoBase)
                             
                         }
                     }
@@ -51,10 +51,43 @@ final class UserController {
             return session.user.get(on: req).flatMap { user in
                 return Piggy.query(on: req).filter(\Piggy.userID, .equal, user.id ?? -1).all().map { piggies in
                     let balance = piggies.reduce(0.0, {$0 + $1.balance})
-                    return SignInTwoReply(fullName: user.fullName, phoneNumber: user.phoneNumber, city: user.city, birthDay: user.birthDay, gender: user.gender, piggy: balance, currency: piggies.first?.currency ?? "PLN")
+                    return SignInTwoReply(fullName: user.fullName, phoneNumber: user.phoneNumber, city: user.city, birthDay: user.birthDay, gender: user.gender, piggy: balance, currency: piggies.first?.currency ?? "PLN", photoBase: user.photoBase)
                 }
             }
         }
     }
     
+    func setpinpre(_ req: Request) throws -> SetPinOneReply {
+        return SetPinOneReply(entrophy: Session.randomTransportKey(length: 64))
+    }
+    
+    func setpincom(_ req: Request) throws -> Future<HTTPStatus> {
+        let sessionId = req.http.headers.firstValue(name: HTTPHeaderName("X-Session-Id")) ?? ""
+        guard let uuidSessionId = UUID(sessionId) else { throw Abort(.forbidden) }
+        return Session.find(uuidSessionId, on: req).unwrap(or: Abort(.forbidden)).flatMap { session in
+            return session.user.get(on: req).flatMap { user in
+                user.pin = "1234"
+                return user.save(on: req).map { _ in
+                    return HTTPStatus.ok
+                }
+            }
+        }
+    }
+    
+    func setphoto(_ req: Request) throws -> Future<HTTPStatus> {
+        let sessionId = req.http.headers.firstValue(name: HTTPHeaderName("X-Session-Id")) ?? ""
+        guard let uuidSessionId = UUID(sessionId) else { throw Abort(.forbidden) }
+        return Session.find(uuidSessionId, on: req).unwrap(or: Abort(.forbidden)).flatMap { session in
+            return session.user.get(on: req).flatMap { user in
+                return try req.content.decode(SetPinTwoRequest.self).flatMap { content in
+                    user.photoBase = ""
+                    return user.save(on: req).map { _ in
+                        return HTTPStatus.ok
+                    }
+                }
+            }
+        }
+    }
+    
+
 }

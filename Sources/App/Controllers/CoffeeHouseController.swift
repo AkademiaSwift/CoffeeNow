@@ -94,4 +94,12 @@ final class CoffeeHouseController {
             }
         }
     }
+    
+    func favourite(_ req: Request) throws -> HTTPStatus {
+        return HTTPStatus.ok
+    }
+    
+    func modifyFavourite(_ req: Request) throws -> HTTPStatus {
+        return HTTPStatus.ok
+    }
 }
