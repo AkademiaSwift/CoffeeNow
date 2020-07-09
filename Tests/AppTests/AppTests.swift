@@ -71,19 +71,140 @@ final class AppTests: XCTestCase {
         var headers = HTTPHeaders()
         headers.add(name: "X-Session-Id", value: sessionId!)
         _ = try app.sendRequest(to: "client", method: .GET, headers: headers, body: empty)
+        XCTAssert(true)
     }
     
+    func testClientSetPin() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+        
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId!)
+        let setPin1 = try app.sendRequest(to: "client/setPin", method: .GET, headers: headers, body: empty)
+        let firstStepReply = try setPin1.content.decode(SetPinOneReply.self).wait()
+        
+        let crypto = "222222222"
+        let pin = SetPinTwoRequest(crypto: crypto)
+        let setPin2 = try app.sendRequest(to: "client/setPin", method: .POST, headers: headers, body: pin)
+        XCTAssertEqual(setPin2.http.status, HTTPStatus.ok)
+        XCTAssert(true)
+    }
     
+    func testClientSetPhoto() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+        
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId!)
+        let photo = try app.sendRequest(to: "client/setPhoto", method: .PUT, headers: headers, body: empty)
+        XCTAssertEqual(photo.http.status, HTTPStatus.ok)
+        XCTAssert(true)
+    }
+    
+    func testPaycards() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+        
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId!)
+        let photo = try app.sendRequest(to: "client/setPhoto", method: .PUT, headers: headers, body: empty)
+        XCTAssertEqual(photo.http.status, HTTPStatus.ok)
+        XCTAssert(true)
+    }
+    
+    func testPaycardAdd() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+    
+        XCTAssert(true)
+    }
 
+    func testPaycardRemove() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+    
+        XCTAssert(true)
+    }
+
+    func testOrders() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+    
+        XCTAssert(true)
+    }
+
+    func testOrder() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+    
+        XCTAssert(true)
+    }
+    func testOrderStatus() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+    
+        XCTAssert(true)
+    }
+    
+    func testOrderAddToFavourite() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+    
+        XCTAssert(true)
+    }
+    
+    func testFavouriteOrders() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+    
+        XCTAssert(true)
+    }
+    
+    func testFavouriteCoffehouses() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+    
+        XCTAssert(true)
+    }
+    
+    func testPiggyUpdate() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+    
+        XCTAssert(true)
+    }
+    
+    func testPiggyBlock() throws {
+        let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
+        XCTAssertNotNil(sessionId)
+    
+        XCTAssert(true)
+    }
+    
     static let allTests = [
         ("testListOfCoffehouses", testListOfCoffehouses),
         ("testListOfCoffehousesLocations", testListOfCoffehousesLocations),
         ("testCoffehousesMenu", testCoffehousesMenu),
         ("testProductDetails", testProductDetails),
         ("testSignup", testSignup),
-        ("testSignin", testSignin)
-        
+        ("testSignin", testSignin),
+        ("testClient", testClient),
+        ("testClientSetPin", testClientSetPin),
+        ("testClientSetPhoto", testClientSetPhoto),
+        ("testPaycards", testPaycards),
+        ("testPaycardAdd", testPaycardAdd),
+        ("testPaycardRemove", testPaycardRemove),
+        ("testOrders", testOrders),
+        ("testOrder", testOrder),
+        ("testOrderStatus", testOrderStatus),
+        ("testOrderAddToFavourite", testOrderAddToFavourite),
+        ("testFavouriteOrders", testFavouriteOrders),
+        ("testFavouriteCoffehouses", testFavouriteCoffehouses),
+        ("testPiggyUpdate", testPiggyUpdate),
+        ("testPiggyBlock", testPiggyBlock)
     ]
-    
     
 }
