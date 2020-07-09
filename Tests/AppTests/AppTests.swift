@@ -148,6 +148,11 @@ final class AppTests: XCTestCase {
         let sessionId = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", crypto: "22222222")
         XCTAssertNotNil(sessionId)
     
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId!)
+        let orders = try app.sendRequest(to: "orders", method: .GET, headers: headers, body: empty)
+        _ = try orders.content.decode([OrderListReply].self).wait()
         XCTAssert(true)
     }
 
