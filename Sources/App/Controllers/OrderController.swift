@@ -328,10 +328,18 @@ final class OrderController {
     
     
     func doneAllWaitingOrder(_ req: Request) throws -> Future<HTTPStatus> {
-        return req.withPooledConnection(to: .mysql) { conn in
-            let statusWaiting = "{\"rawValue\": \"WAITING\"}"
-            let statusDone = "{\"rawValue\": \"DONE\"}"
-            return conn.raw("UPDATE ORDER SET status='\(statusDone)' WHERE status='\(statusWaiting)'").all().map { _ in
+        return Order.query(on: req).all().flatMap { orders in
+            var futures: [EventLoopFuture<Void>] = []
+            for order in orders {
+                if order.status == .waiting {
+                    order.status = .done
+                    futures.append(
+                        order.save(on: req).map { _ in return }
+                    )
+                }
+            }
+            
+            return EventLoopFuture<Void>.andAll(futures, eventLoop: req.eventLoop).map { _ in
                 return HTTPStatus.ok
             }
         }
