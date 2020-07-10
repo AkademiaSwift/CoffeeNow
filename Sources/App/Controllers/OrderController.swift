@@ -287,8 +287,42 @@ final class OrderController {
         }
     }
     
-    func deleteFavourite(_ req: Request) throws -> HTTPStatus {
-        return HTTPStatus.ok
+    func deleteFavourite(_ req: Request) throws -> Future<HTTPStatus> {
+        let sessionId = req.http.headers.firstValue(name: HTTPHeaderName("X-Session-Id")) ?? ""
+        let favouriteId = try req.parameters.next(Int.self)
+        guard let uuidSessionId = UUID(sessionId) else { throw Abort(.forbidden) }
+        return Session.find(uuidSessionId, on: req).unwrap(or: Abort(.forbidden)).flatMap { session in
+            return session.user.get(on: req).flatMap { user in
+                return FavouriteOrder.find(favouriteId, on: req).unwrap(or: Abort(.conflict)).flatMap { order in
+                    return try order.items.query(on: req).all().flatMap { items in
+
+                        var futures: [EventLoopFuture<Void>] = []
+                        var subFutures: [EventLoopFuture<Void>] = []
+                        var subSubFutures: [EventLoopFuture<Void>] = []
+                        
+                        for item in items {
+                            futures.append( try item.additionals.query(on: req).all().map(to: Void.self) { additinalItems in
+                                for additional in additinalItems {
+                                    subSubFutures.append( additional.delete(on: req).map(to: Void.self) { _ in return } )
+                                }
+                                subFutures.append( item.delete(on: req).map(to: Void.self) { _ in return } )
+                            } )
+                        }
+
+                        return EventLoopFuture<Void>.andAll(futures, eventLoop: req.eventLoop).flatMap { _ in
+                            return EventLoopFuture<Void>.andAll(subSubFutures, eventLoop: req.eventLoop).flatMap { _ in
+                                return EventLoopFuture<Void>.andAll(subFutures, eventLoop: req.eventLoop).flatMap { _ in
+                                    return order.delete(on: req).map { _ in
+                                        return HTTPStatus.ok
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
 }

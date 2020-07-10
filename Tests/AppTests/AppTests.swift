@@ -213,7 +213,7 @@ final class AppTests: XCTestCase {
         let test = [1]
         var headers = HTTPHeaders()
         headers.add(name: "X-Session-Id", value: sessionId)
-        let favourite = try app.sendRequest(to: "order/c00f-7a7-aff-5e44/addToFavourite", method: .POST, headers: headers, body: test)
+        let favourite = try app.sendRequest(to: "order/4cd3-0f1-1f8-b61d/addToFavourite", method: .POST, headers: headers, body: test)
         XCTAssertEqual(favourite.http.status, HTTPStatus.ok)
         XCTAssert(true)
     }
@@ -230,10 +230,27 @@ final class AppTests: XCTestCase {
         XCTAssert(true)
     }
     
+    func testFavouriteOrderModify() throws {
+        let (sessionId, _) = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", pin: "1234") ?? ("", "")
+        XCTAssertTrue(sessionId.lengthOfBytes(using: .utf8) > 0)
+    
+        let data = FavouriteOrderModifyRequest(name: "Nowa ładna nazwa", orderAsap: nil, orderTime: nil)
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId)
+        let order = try app.sendRequest(to: "favouriteOrder/1", method: .POST, headers: headers, body: data)
+        XCTAssertEqual(order.http.status, HTTPStatus.ok)
+        XCTAssert(true)
+    }
+    
     func testFavouriteOrderRemove() throws {
         let (sessionId, _) = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", pin: "1234") ?? ("", "")
         XCTAssertTrue(sessionId.lengthOfBytes(using: .utf8) > 0)
     
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId)
+        let order = try app.sendRequest(to: "favouriteOrder/3", method: .DELETE, headers: headers, body: empty)
+        XCTAssertEqual(order.http.status, HTTPStatus.ok)
         XCTAssert(true)
     }
     
@@ -291,6 +308,7 @@ final class AppTests: XCTestCase {
         ("testOrderStatus", testOrderStatus),
         ("testOrderAddToFavourite", testOrderAddToFavourite),
         ("testFavouriteOrders", testFavouriteOrders),
+        ("testFavouriteOrderModify", testFavouriteOrderModify),
         ("testFavouriteOrderRemove", testFavouriteOrderRemove),
         ("testFavouriteCoffehouses", testFavouriteCoffehouses),
         ("testPiggyUpdate", testPiggyUpdate),
