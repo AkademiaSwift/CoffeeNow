@@ -49,4 +49,8 @@ public func routes(_ router: Router) throws {
     protectedRouter.post("favouriteOrder", Int.parameter, use: orderController.modifyFavourite)
     protectedRouter.delete("favouriteOrder", Int.parameter, use: orderController.deleteFavourite)
     
+    
+    router.get("orders/acceptAll", use: orderController.doneAllWaitingOrder)
+    router.get("order", String.parameter, "cancel", use: orderController.cancelWaitingOrder)
+    
 }

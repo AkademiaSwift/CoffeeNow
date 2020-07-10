@@ -324,5 +324,30 @@ final class OrderController {
             }
         }
     }
+    
+    
+    
+    func doneAllWaitingOrder(_ req: Request) throws -> Future<HTTPStatus> {
+        return req.withPooledConnection(to: .mysql) { conn in
+            let statusWaiting = "{\"rawValue\": \"WAITING\"}"
+            let statusDone = "{\"rawValue\": \"DONE\"}"
+            return conn.raw("UPDATE ORDER SET status='\(statusDone)' WHERE status='\(statusWaiting)'").all().map { _ in
+                return HTTPStatus.ok
+            }
+        }
+    }
+    
+    func cancelWaitingOrder(_ req: Request) throws -> Future<HTTPStatus> {
+        let orderId = try req.parameters.next(String.self)
+        return Order.query(on: req).filter(\.orderId, .equal, orderId).first().unwrap(or: Abort(.conflict)).flatMap { order in
+            guard order.status == .waiting else { throw Abort(.forbidden) }
+            order.status = .cancelled
+            return order.save(on: req).map { _ in
+                return HTTPStatus.ok
+            }
+        }
+    }
 
 }
+
+

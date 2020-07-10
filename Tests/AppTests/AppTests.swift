@@ -293,6 +293,20 @@ final class AppTests: XCTestCase {
         XCTAssert(true)
     }
     
+    func testOrderAllAccept() throws {
+        let empty: EmptyBody? = nil
+        let acceptAll = try app.sendRequest(to: "orders/acceptAll", method: .GET, body: empty)
+        XCTAssertEqual(acceptAll.http.status, HTTPStatus.ok)
+        XCTAssert(true)
+    }
+    
+    func testOrderCancel() throws {
+        let empty: EmptyBody? = nil
+        let cancel = try app.sendRequest(to: "order/c00f-7a7-aff-5e44/cancel", method: .GET, body: empty)
+        XCTAssertEqual(cancel.http.status, HTTPStatus.ok)
+        XCTAssert(true)
+    }
+    
     static let allTests = [
         ("testListOfCoffehouses", testListOfCoffehouses),
         ("testListOfCoffehousesLocations", testListOfCoffehousesLocations),
