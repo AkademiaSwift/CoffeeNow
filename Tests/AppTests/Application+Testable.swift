@@ -55,3 +55,7 @@ extension Application {
 }
 
 public struct EmptyBody: Content {}
+typealias ImageFileData = Data
+extension ImageFileData: Content {
+    public static let defaultContentType = MediaType.png
+}

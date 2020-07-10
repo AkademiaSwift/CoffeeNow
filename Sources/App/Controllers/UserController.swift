@@ -107,8 +107,8 @@ final class UserController {
         guard let uuidSessionId = UUID(sessionId) else { throw Abort(.forbidden) }
         return Session.find(uuidSessionId, on: req).unwrap(or: Abort(.forbidden)).flatMap { session in
             return session.user.get(on: req).flatMap { user in
-                return try req.content.decode(SetPinTwoRequest.self).flatMap { content in
-                    user.photoBase = ""
+                return try req.content.decode(SetPhotoRequest.self).flatMap { content in
+                    user.photoBase = content.photo
                     return user.save(on: req).map { _ in
                         return HTTPStatus.ok
                     }
