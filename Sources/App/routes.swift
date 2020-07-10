@@ -38,13 +38,13 @@ public func routes(_ router: Router) throws {
     
     protectedRouter.get("favouriteCoffeehouses", use: coffeeHouseController.favourite)
     protectedRouter.post("favouriteCoffeehouses", use: coffeeHouseController.modifyFavourite)
-
+    
     let orderController = OrderController()
     protectedRouter.get("orders", use: orderController.index)
     protectedRouter.post("order/preauth", use: orderController.addpre)
     protectedRouter.post("order/commit", use: orderController.addcom)
-    protectedRouter.get("order", Int.parameter, "status", use: orderController.status)
-    protectedRouter.post("order", Int.parameter, "addToFavourite", use: orderController.addFavourite)
+    protectedRouter.get("order", String.parameter, "status", use: orderController.status)
+    protectedRouter.post("order", String.parameter, "addToFavourite", use: orderController.addFavourite)
     protectedRouter.get("favouriteOrders", use: orderController.favourite)
     protectedRouter.post("favouriteOrder", Int.parameter, use: orderController.modifyFavourite)
     protectedRouter.delete("favouriteOrder", Int.parameter, use: orderController.deleteFavourite)

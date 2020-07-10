@@ -161,15 +161,48 @@ final class AppTests: XCTestCase {
     }
 
     func testOrder() throws {
-        let (sessionId, _) = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", pin: "1234") ?? ("", "")
+        let (sessionId, transportKey) = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", pin: "1234") ?? ("", "")
         XCTAssertTrue(sessionId.lengthOfBytes(using: .utf8) > 0)
     
+        var items = [OrderCreateItem]()
+        items.append(OrderCreateItem(productId: 1, sizeId: 2, additionals: nil, count: 1))
+        items.append(OrderCreateItem(productId: 2, sizeId: nil, additionals: [1], count: 1))
+
+        let coffeehouseId = 1
+        let localizationId = 1
+        let paymentMethod = "BLIK"
+        let currency = "PLN"
+        let totalAmount = Decimal(12.50)
+                
+        let data = OrderCreatePreauthRequest(coffeehouseId: coffeehouseId, localizationId: localizationId, orderAsap: true, orderTime: nil, items: items, totalAmount: totalAmount, currency: currency, paymentMethod: paymentMethod, paycardId: nil)
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId)
+        let order1 = try app.sendRequest(to: "order/preauth", method: .POST, headers: headers, body: data)
+        let firstStepReply = try order1.content.decode(OrderCreatePreauthReply.self).wait()
+        
+        var itemsData = ""
+        for item in items {
+            itemsData += "\(item.productId)\(item.count)"
+        }
+        let pin = "1234"
+        let dataToSecure = "\(coffeehouseId)\(localizationId)\(paymentMethod)\(currency)\(totalAmount)\(itemsData)\(pin)"
+        let orderCrypto = try CryptoUtils.secureData(data: dataToSecure, key: transportKey, entrophy: firstStepReply.entrophy) ?? ""
+        let orderData = OrderCreateCommitRequest(crypto: orderCrypto)
+        let order2 = try app.sendRequest(to: "order/commit", method: .POST, headers: headers, body: orderData)
+        let secondStepReply = try order2.content.decode(OrderCreateCommitReply.self).wait()
+        XCTAssertTrue(secondStepReply.orderId.lengthOfBytes(using: .utf8) > 0)
+        
         XCTAssert(true)
     }
     func testOrderStatus() throws {
         let (sessionId, transportKey) = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", pin: "1234") ?? ("", "")
         XCTAssertTrue(sessionId.lengthOfBytes(using: .utf8) > 0)
     
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId)
+        let order = try app.sendRequest(to: "order/27d4-bcc-3e5-3c71/status", method: .GET, headers: headers, body: empty)
+        XCTAssertTrue(order.http.status == HTTPStatus.notModified)
         XCTAssert(true)
     }
     
@@ -180,12 +213,24 @@ final class AppTests: XCTestCase {
         let test = [1]
         var headers = HTTPHeaders()
         headers.add(name: "X-Session-Id", value: sessionId)
-        let coffeehouses = try app.sendRequest(to: "favouriteCoffeehouses", method: .POST, headers: headers, body: test)
-        XCTAssertEqual(coffeehouses.http.status, HTTPStatus.ok)
+        let favourite = try app.sendRequest(to: "order/c00f-7a7-aff-5e44/addToFavourite", method: .POST, headers: headers, body: test)
+        XCTAssertEqual(favourite.http.status, HTTPStatus.ok)
         XCTAssert(true)
     }
     
     func testFavouriteOrders() throws {
+        let (sessionId, _) = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", pin: "1234") ?? ("", "")
+        XCTAssertTrue(sessionId.lengthOfBytes(using: .utf8) > 0)
+    
+        let empty: EmptyBody? = nil
+        var headers = HTTPHeaders()
+        headers.add(name: "X-Session-Id", value: sessionId)
+        let orders = try app.sendRequest(to: "favouriteOrders", method: .GET, headers: headers, body: empty)
+        _ = try orders.content.decode([FavouriteOrderListReply].self).wait()
+        XCTAssert(true)
+    }
+    
+    func testFavouriteOrderRemove() throws {
         let (sessionId, _) = try app.signIn(appId: "fffae635-614e-27ca-bc20-f2e59f1b5bf3", pin: "1234") ?? ("", "")
         XCTAssertTrue(sessionId.lengthOfBytes(using: .utf8) > 0)
     
@@ -246,6 +291,7 @@ final class AppTests: XCTestCase {
         ("testOrderStatus", testOrderStatus),
         ("testOrderAddToFavourite", testOrderAddToFavourite),
         ("testFavouriteOrders", testFavouriteOrders),
+        ("testFavouriteOrderRemove", testFavouriteOrderRemove),
         ("testFavouriteCoffehouses", testFavouriteCoffehouses),
         ("testPiggyUpdate", testPiggyUpdate),
         ("testPiggyBlock", testPiggyBlock)

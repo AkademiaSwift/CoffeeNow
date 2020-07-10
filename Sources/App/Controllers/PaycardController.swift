@@ -43,8 +43,10 @@ final class PaycardController {
                             throw Abort(.badRequest)
                         }
                         let paycard = Paycard(type: content.type, paycardName: content.name, paycardNumber: number, holderName: content.holderName, expired: content.expired, ccv2: content.ccv2, userID: user.id ?? 0)
-                        return paycard.save(on: req).map { _ in
-                            return HTTPStatus.ok
+                        return paycard.save(on: req).flatMap { _ in
+                            return cache.remove("paycardAddEntrophy-\(sessionId)").map {
+                                return HTTPStatus.ok
+                            }
                         }
                     }
                 }

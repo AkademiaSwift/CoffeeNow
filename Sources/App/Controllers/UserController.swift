@@ -42,10 +42,10 @@ final class UserController {
                         return Piggy.query(on: req).filter(\Piggy.userID, .equal, user.id ?? -1).all().flatMap { piggies in
                             let balance = piggies.reduce(0.0, {$0 + $1.balance})
                             session.userID = user.id ?? -1
-                            return session.save(on: req).map { _ in
-                                
-                                return SignInTwoReply(fullName: user.fullName, phoneNumber: user.phoneNumber, city: user.city, birthDay: user.birthDay, gender: user.gender, piggy: balance, currency: piggies.first?.currency ?? "PLN", photoBase: user.photoBase)
-                                
+                            return session.save(on: req).flatMap { _ in
+                                return cache.remove("signInEntrophy-\(sessionId)").map {
+                                    return SignInTwoReply(fullName: user.fullName, phoneNumber: user.phoneNumber, city: user.city, birthDay: user.birthDay, gender: user.gender, piggy: balance, currency: piggies.first?.currency ?? "PLN", photoBase: user.photoBase)
+                                }
                             }
                         }
                     }

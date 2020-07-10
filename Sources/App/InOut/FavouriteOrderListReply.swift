@@ -2,7 +2,7 @@ import Vapor
 
 final class FavouriteOrderListReply: Content {
     
-    var id: Int
+    var favouriteOrderId: Int
     var name: String
     var coffeehouseId: Int
     var localizationId: Int
@@ -13,10 +13,9 @@ final class FavouriteOrderListReply: Content {
     var currency: String
     var paymentMethod: String
     var paycardId: Int?
-    var status: String
     
-    init(id: Int, name: String, coffeehouseId: Int, localizationId: Int, orderAsap: Bool, orderTime: String?, items: [OrderItemReply], totalAmount: Decimal, currency: String, paymentMethod: String, paycardId: Int?, status: String) {
-        self.id = id
+    init(favouriteOrderId: Int, name: String, coffeehouseId: Int, localizationId: Int, orderAsap: Bool, orderTime: String?, items: [OrderItemReply], totalAmount: Decimal, currency: String, paymentMethod: String, paycardId: Int?) {
+        self.favouriteOrderId = favouriteOrderId
         self.name = name
         self.coffeehouseId = coffeehouseId
         self.localizationId = localizationId
@@ -27,7 +26,6 @@ final class FavouriteOrderListReply: Content {
         self.currency = currency
         self.paymentMethod = paymentMethod
         self.paycardId = paycardId
-        self.status = status
     }
     
 }

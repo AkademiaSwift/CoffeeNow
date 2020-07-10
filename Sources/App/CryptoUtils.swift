@@ -234,14 +234,50 @@ class CryptoUtils {
         return paycardNumber
     }
 
-    static func secureData(pin: String, key: String, entrophy: String) throws -> String? {
+    static func secureData(data: String, key: String, entrophy: String) throws -> String? {
+        guard data.lengthOfBytes(using: .utf8) > 0 else { return nil }
+        guard key.lengthOfBytes(using: .utf8) == 48 else { return nil }
+        guard entrophy.lengthOfBytes(using: .utf8) == 64 else { return nil }
         
-        return nil
+        let encodedString = "\(entrophy)\(data)"
+       
+        let aes256 = Cipher(algorithm: .aes256cbc)
+        guard let allKeyData = key.data(using: .utf8), let dataToEncrypt = encodedString.data(using: .utf8) else { return nil }
+        let aesKey = allKeyData.subdata(in: 0..<32)
+        let aesIv = allKeyData.subdata(in: 32..<48)
+        //print(allKeyData.hexDebug)
+        //print(aesKey.hexDebug)
+        //print(aesIv.hexDebug)
+        try aes256.reset(key: aesKey, iv: aesIv, mode: .encrypt)
+        var buffer = Data()
+        try aes256.update(data: dataToEncrypt, into: &buffer)
+        try aes256.finish(into: &buffer)
+        return buffer.base64EncodedString()
     }
     
     static func unSecureData(encodedString: String, key: String, entrophy: String) throws -> String? {
+        guard encodedString.lengthOfBytes(using: .utf8) > 0 else { return nil }
+        guard key.lengthOfBytes(using: .utf8) == 48 else { return nil }
+        guard entrophy.lengthOfBytes(using: .utf8) == 64 else { return nil }
         
-        return nil
+        let aes256 = Cipher(algorithm: .aes256cbc)
+        guard let allKeyData = key.data(using: .utf8), let dataToDecrypt = Data(base64Encoded: encodedString) else { return nil }
+        let aesKey = allKeyData.subdata(in: 0..<32)
+        let aesIv = allKeyData.subdata(in: 32..<48)
+        //print(allKeyData.hexDebug)
+        //print(aesKey.hexDebug)
+        //print(aesIv.hexDebug)
+        try aes256.reset(key: aesKey, iv: aesIv, mode: .decrypt)
+        var buffer = Data()
+        try aes256.update(data: dataToDecrypt, into: &buffer)
+        try aes256.finish(into: &buffer)
+        guard let unSecured = String(data: buffer, encoding: .utf8),
+           unSecured.lengthOfBytes(using: .utf8) > 64 else { return nil }
+        let index = unSecured.index(unSecured.startIndex, offsetBy: 64)
+        let entrophyDecoded = String(unSecured[..<index])
+        let data = String(unSecured[index...])
+        guard entrophyDecoded == entrophy else { return nil }
+        return data
     }
 
 }
