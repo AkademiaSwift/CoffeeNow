@@ -1,6 +1,8 @@
 import FluentMySQL
 import Vapor
 
+typealias MySQLCache = DatabaseKeyedCache<ConfiguredDatabase<MySQLDatabase>>
+
 /// Called before your application initializes.
 public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
     // Register providers first
@@ -34,8 +36,15 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     databases.add(database: mysql, as: .mysql)
     services.register(databases)
 
+    services.register(KeyedCache.self) { container -> MySQLCache in
+        let pool = try container.connectionPool(to: .mysql)
+        return .init(pool: pool)
+    }
+    config.prefer(MySQLCache.self, for: KeyedCache.self)
+    
     // Configure migrations
     var migrations = MigrationConfig()
+    migrations.prepareCache(for: .mysql)
     migrations.add(model: CoffeeHouse.self, database: .mysql)
     migrations.add(model: Location.self, database: .mysql)
     migrations.add(model: MenuCategory.self, database: .mysql)

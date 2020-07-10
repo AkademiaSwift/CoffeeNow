@@ -73,5 +73,8 @@ final class OrderController {
     func modifyFavourite(_ req: Request) throws -> HTTPStatus {
         return HTTPStatus.ok
     }
-    
+    func deleteFavourite(_ req: Request) throws -> HTTPStatus {
+        return HTTPStatus.ok
+    }
+
 }

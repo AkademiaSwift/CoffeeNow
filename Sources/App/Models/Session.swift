@@ -12,7 +12,7 @@ final class Session: MySQLUUIDModel {
     init(id: UUID? = nil, userID: Int?) {
         self.id = id
         self.userID = userID
-        self.transportKey = Session.randomTransportKey(length: 32)
+        self.transportKey = Session.randomTransportKey(length: 48)
         self.expired = Date(timeIntervalSinceNow: 3600)
     }
     

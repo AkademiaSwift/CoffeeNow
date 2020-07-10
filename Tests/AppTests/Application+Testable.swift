@@ -39,16 +39,17 @@ extension Application {
         return result
     }
     
-    public func signIn(appId: String, crypto: String) throws -> String? {
+    public func signIn(appId: String, pin: String) throws -> (String, String)? {
         let empty: EmptyBody? = nil
         let test = try self.sendRequest(to: "signin", method: .GET, body: empty)
         let firstStepReply = try test.content.decode(SignInOneReply.self).wait()
         
+        guard let crypto = try CryptoUtils.encodePin(pin: pin, key: firstStepReply.transportKey, entrophy: firstStepReply.entrophy) else { return nil }
         let user: SignInTwoRequest = SignInTwoRequest(appId: appId, crypto: crypto)
         var headers = HTTPHeaders()
         headers.add(name: "X-Session-Id", value: firstStepReply.sessionId)
         _ = try self.sendRequest(to: "signin", method: .POST, headers: headers, body: user)
-        return firstStepReply.sessionId
+        return (firstStepReply.sessionId, firstStepReply.transportKey)
     }
     
 }

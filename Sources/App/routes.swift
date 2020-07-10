@@ -46,6 +46,7 @@ public func routes(_ router: Router) throws {
     protectedRouter.get("order", Int.parameter, "status", use: orderController.status)
     protectedRouter.post("order", Int.parameter, "addToFavourite", use: orderController.addFavourite)
     protectedRouter.get("favouriteOrders", use: orderController.favourite)
-    protectedRouter.delete("favouriteOrder", Int.parameter, use: orderController.modifyFavourite)
+    protectedRouter.post("favouriteOrder", Int.parameter, use: orderController.modifyFavourite)
+    protectedRouter.delete("favouriteOrder", Int.parameter, use: orderController.deleteFavourite)
     
 }
