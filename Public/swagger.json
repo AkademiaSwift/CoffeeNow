@@ -23,7 +23,7 @@
     "name" : "with-session",
     "description" : "Operacje dostępne tylko dla zalogowanego klienta (i w jego kontekście). Wymagają dodatkowego nagłówka X-Session-Id gdzie przekazywany jest identyfikator sesji."
   } ],
-  "schemes" : [ "https", "http" ],
+  "schemes" : [ "http" ],
   "paths" : {
     "/coffehouses" : {
       "get" : {
