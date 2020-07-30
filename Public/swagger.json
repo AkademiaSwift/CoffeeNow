@@ -25,7 +25,7 @@
   } ],
   "schemes" : [ "http" ],
   "paths" : {
-    "/coffehouses" : {
+    "/coffeehouses" : {
       "get" : {
         "tags" : [ "no-session" ],
         "summary" : "Pobranie listy sieci kawiarni",
@@ -44,13 +44,13 @@
         }
       }
     },
-    "/coffehouses/{coffehouseId}/locations" : {
+    "/coffeehouses/{coffeehouseId}/locations" : {
       "get" : {
         "tags" : [ "no-session" ],
         "summary" : "Pobranie listy lokalizacji danej sieci kawiarni",
         "produces" : [ "application/json" ],
         "parameters" : [ {
-          "name" : "coffehouseId",
+          "name" : "coffeehouseId",
           "in" : "path",
           "description" : "Identyfikator sieci kawiarni",
           "required" : true,
@@ -72,13 +72,13 @@
         }
       }
     },
-    "/coffehouses/{coffehouseId}/menu" : {
+    "/coffeehouses/{coffeehouseId}/menu" : {
       "get" : {
         "tags" : [ "no-session" ],
         "summary" : "Pobranie produktów dla sieci kawiarni",
         "produces" : [ "application/json" ],
         "parameters" : [ {
-          "name" : "coffehouseId",
+          "name" : "coffeehouseId",
           "in" : "path",
           "description" : "Identyfikator sieci kawiarn",
           "required" : true,
