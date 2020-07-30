@@ -1,0 +1,1496 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "API dla aplikacji lojalnościowej CoffeNow",
+    "version" : "1.0.0",
+    "title" : "CoffeeNow API",
+    "contact" : {
+      "name" : "Akademia Swift",
+      "url" : "http://www.apki.mobi",
+      "email" : "kontakt@apki.mobi"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host" : "virtserver.swaggerhub.com",
+  "basePath" : "/Akademia-Swift/CoffeeNow/1.0.0",
+  "tags" : [ {
+    "name" : "no-session",
+    "description" : "Operacje dozwolone bez przekazywania sesji"
+  }, {
+    "name" : "with-session",
+    "description" : "Operacje dostępne tylko dla zalogowanego klienta (i w jego kontekście). Wymagają dodatkowego nagłówka X-Session-Id gdzie przekazywany jest identyfikator sesji."
+  } ],
+  "schemes" : [ "https", "http" ],
+  "paths" : {
+    "/coffehouses" : {
+      "get" : {
+        "tags" : [ "no-session" ],
+        "summary" : "Pobranie listy sieci kawiarni",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista wszystkich współpracujących sieci kawiarni",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/CoffeeHouseItem"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/coffehouses/{coffehouseId}/locations" : {
+      "get" : {
+        "tags" : [ "no-session" ],
+        "summary" : "Pobranie listy lokalizacji danej sieci kawiarni",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "coffehouseId",
+          "in" : "path",
+          "description" : "Identyfikator sieci kawiarni",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista lokalizacji danej sieci kawiarni",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/LocalizationItem"
+              }
+            }
+          },
+          "400" : {
+            "description" : "Nie poprawny identyfikator kawiarni"
+          }
+        }
+      }
+    },
+    "/coffehouses/{coffehouseId}/menu" : {
+      "get" : {
+        "tags" : [ "no-session" ],
+        "summary" : "Pobranie produktów dla sieci kawiarni",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "coffehouseId",
+          "in" : "path",
+          "description" : "Identyfikator sieci kawiarn",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Menu kawiarni",
+            "schema" : {
+              "$ref" : "#/definitions/MenuItem"
+            }
+          },
+          "400" : {
+            "description" : "Nie poprawny identyfikator kawiarni"
+          }
+        }
+      }
+    },
+    "/product/{productId}" : {
+      "get" : {
+        "tags" : [ "no-session" ],
+        "summary" : "Pobranie produktów dla sieci kawiarni",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "productId",
+          "in" : "path",
+          "description" : "Identyfikator sieci kawiarn",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Menu kawiarni",
+            "schema" : {
+              "$ref" : "#/definitions/ProductItem"
+            }
+          },
+          "400" : {
+            "description" : "Nie poprawny identyfikator kawiarni"
+          }
+        }
+      }
+    },
+    "/signup" : {
+      "post" : {
+        "tags" : [ "no-session" ],
+        "summary" : "Rejestracja użytkownika",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "user",
+          "description" : "Usługa do rejestracji użytkownika",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/UserCreateRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Użytkownik poprawnie dodany",
+            "schema" : {
+              "$ref" : "#/definitions/UserCreateReply"
+            }
+          },
+          "400" : {
+            "description" : "Nie poprawne dane w formularzu"
+          },
+          "409" : {
+            "description" : "Użytkownik już istnieje"
+          }
+        }
+      }
+    },
+    "/signin" : {
+      "get" : {
+        "tags" : [ "no-session" ],
+        "summary" : "Logowanie użytkownika - krok 1",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Dane niezbędne do logowania",
+            "schema" : {
+              "$ref" : "#/definitions/UserLoginReply"
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Logowanie użytkownika - krok 2",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "request",
+          "description" : "Dane użytkownika do zalogowania",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/UserLoginRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Dane klienta zalogowanego",
+            "schema" : {
+              "$ref" : "#/definitions/ClientItem"
+            }
+          },
+          "400" : {
+            "description" : "Nie poprawne dane w formularzu"
+          }
+        }
+      }
+    },
+    "/client" : {
+      "get" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Pobranie szczegółów profilu użytkownika",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Dane niezbędne do logowania",
+            "schema" : {
+              "$ref" : "#/definitions/ClientItem"
+            }
+          }
+        }
+      }
+    },
+    "/client/setPin" : {
+      "get" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Ustawienie pinu do aplikacji - krok 1",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Dane potrzebne do zaszyfrowania pinu",
+            "schema" : {
+              "$ref" : "#/definitions/UserSetPinReply"
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Ustawienie pinu do aplikacji - krok 2",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "request",
+          "description" : "Dane użytkownika do zalogowania",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/UserSetPinRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Pin został ustawiony prawidłowo"
+          },
+          "400" : {
+            "description" : "Bład danych w formularzu"
+          }
+        }
+      }
+    },
+    "/client/setPhoto" : {
+      "post" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Wgranie na serwer zdjęcia użytkownika",
+        "consumes" : [ "applicaftion/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "request",
+          "description" : "Lista identyfikatorów sieci kawiarni",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/request"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Poprawne załadowanie pliku"
+          },
+          "400" : {
+            "description" : "Bład danych w formularzu"
+          }
+        }
+      }
+    },
+    "/paycards" : {
+      "get" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Pobranie listy kart płatniczych użytkownika",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista kart płatniczych",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/PaycardItem"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paycard/add" : {
+      "get" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Dodanie nowej karty płatniczej użytkownika - krok 1",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista kart płatniczych",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/PaycardAddReply"
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Dodanie nowej karty płatniczej użytkownika - krok 2",
+        "consumes" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "request",
+          "description" : "Dane użytkownika do zalogowania",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/PaycardAddRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Poprawne dodanie karty"
+          },
+          "400" : {
+            "description" : "Błedny formularz"
+          }
+        }
+      }
+    },
+    "/paycard/{paycardId}" : {
+      "delete" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Usunięcie karty płatniczej",
+        "parameters" : [ {
+          "name" : "paycardId",
+          "in" : "path",
+          "description" : "Identyfikator karty płatniczej",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Poprawne usunięcie karty"
+          },
+          "409" : {
+            "description" : "Niepoprawny identyfikator karty"
+          }
+        }
+      }
+    },
+    "/orders" : {
+      "get" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Pobranie listy zamówień",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista zamówień",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "allOf" : [ {
+                  "$ref" : "#/definitions/OrderItem"
+                }, {
+                  "type" : "object",
+                  "properties" : {
+                    "orderdId" : {
+                      "type" : "string",
+                      "example" : "1234-421-234",
+                      "description" : "Identyfikator zamówienia"
+                    },
+                    "status" : {
+                      "type" : "string",
+                      "enum" : [ "DONE", "WAITING", "CANCELLED" ]
+                    }
+                  }
+                } ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/order/preauth" : {
+      "post" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Składanie zamówienia - etap 1",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "request",
+          "description" : "Dane użytkownika do zalogowania",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/OrderPreauthRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Parametryzacja zamówienia",
+            "schema" : {
+              "$ref" : "#/definitions/OrderPreauthReply"
+            }
+          }
+        }
+      }
+    },
+    "/order/commit" : {
+      "post" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Składanie zamówienia - etap 2",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "request",
+          "description" : "Dane użytkownika do zalogowania",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/OrderCommitRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Zamówienie przyjęte",
+            "schema" : {
+              "$ref" : "#/definitions/OrderCommitReply"
+            }
+          },
+          "400" : {
+            "description" : "Błędny formularz"
+          },
+          "403" : {
+            "description" : "Błędny pin"
+          }
+        }
+      }
+    },
+    "/order/{orderId}/status" : {
+      "get" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Status zamówienia",
+        "parameters" : [ {
+          "name" : "orderId",
+          "in" : "path",
+          "description" : "Identyfikator zamówienia",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Zamówienie zakończone"
+          },
+          "205" : {
+            "description" : "Zamówienie anulowane"
+          },
+          "304" : {
+            "description" : "Zamówienie oczekuje"
+          },
+          "409" : {
+            "description" : "Brak zamówienia o takim identyfikatorze"
+          }
+        }
+      }
+    },
+    "/order/{orderId}/addToFavourite" : {
+      "post" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Dodaj zamówienie do ulubionych",
+        "parameters" : [ {
+          "name" : "orderId",
+          "in" : "path",
+          "description" : "Identyfikator zamówienia",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Zamówienie dodane do ulubionych"
+          },
+          "409" : {
+            "description" : "Brak zamówienia o takim identyfikatorze"
+          }
+        }
+      }
+    },
+    "/favouriteOrders" : {
+      "get" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Pobranie listy ulubionych zamówień",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista ulubionych zamówień",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "allOf" : [ {
+                  "$ref" : "#/definitions/OrderItem"
+                }, {
+                  "type" : "object",
+                  "properties" : {
+                    "favouriteOrderId" : {
+                      "type" : "integer",
+                      "example" : 123,
+                      "description" : "Identyfikator ulubionego zamówienia"
+                    },
+                    "name" : {
+                      "type" : "string",
+                      "example" : "Śniadanie u Tiffaniego",
+                      "description" : "Nazwa własna dla zamówienia"
+                    }
+                  }
+                } ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/favouriteOrder/{orderId}" : {
+      "post" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Modyfikacja ulubionego zamówienia",
+        "parameters" : [ {
+          "name" : "orderId",
+          "in" : "path",
+          "description" : "Identyfikator zamówienia",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "in" : "body",
+          "name" : "request",
+          "description" : "Dane użytkownika do zalogowania",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/FavouirteOrderModifyRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Ulubione zamówienie zostało zmienione poprawnie"
+          },
+          "400" : {
+            "description" : "Format danych niepoprawny"
+          },
+          "409" : {
+            "description" : "Nieznany identyfikator zamówienia"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Usunięcie zamówienia z listy ulubionych",
+        "parameters" : [ {
+          "name" : "orderId",
+          "in" : "path",
+          "description" : "Identyfikator zamówienia",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Ulubione zamówienie zostało usunięte prawidłowo"
+          }
+        }
+      }
+    },
+    "/favouriteCoffehouses" : {
+      "get" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Pobranie listy ulubionych sieci kawiarni",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista ulubionych sieci kawiarni",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "integer"
+              },
+              "example" : [ 2017, 2018 ]
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Modyfikacja listy ulubionych sieci kawiarni",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "coffehouses",
+          "description" : "Lista identyfikatorów sieci kawiarni",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer"
+            },
+            "example" : [ 2017, 2018 ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Lista została poprawnie zmodyfikowana"
+          },
+          "400" : {
+            "description" : "Nie poprawne identyfikatory sieci kawiarni"
+          }
+        }
+      }
+    },
+    "/piggy" : {
+      "get" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Pobranie aktualizacji skarbonki",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Stan aktualny skarbonki",
+            "schema" : {
+              "$ref" : "#/definitions/inline_response_200"
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "with-session" ],
+        "summary" : "Założenie blokady dls skarbonki",
+        "consumes" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "balance",
+          "description" : "Lista identyfikatorów sieci kawiarni",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/balance"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Poprawnie założona blokada skarbonki"
+          },
+          "409" : {
+            "description" : "Brak wystarczających środków w skarbonce"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "CoffeeHouseItem" : {
+      "type" : "object",
+      "required" : [ "id", "logoURL", "name", "website" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 10451
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "CoffeeHeaven"
+        },
+        "website" : {
+          "type" : "string",
+          "format" : "url",
+          "example" : "https://www.coffee-heaven.org"
+        },
+        "logoURL" : {
+          "type" : "string",
+          "format" : "url",
+          "example" : "https://www.coffee-heaven.org/logo.png"
+        }
+      }
+    },
+    "LocalizationItem" : {
+      "required" : [ "address", "id", "location", "name", "phone" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 10444
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "CoffeHeaven Promenada"
+        },
+        "address" : {
+          "$ref" : "#/definitions/LocalizationItem_address"
+        },
+        "phone" : {
+          "type" : "string",
+          "example" : "48600220333",
+          "description" : "Numer telefonu kontaktowego"
+        },
+        "openingHours" : {
+          "$ref" : "#/definitions/LocalizationItem_openingHours"
+        },
+        "location" : {
+          "$ref" : "#/definitions/LocalizationItem_location"
+        }
+      }
+    },
+    "MenuItem" : {
+      "type" : "object",
+      "required" : [ "categories" ],
+      "properties" : {
+        "categories" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/CategoryItem"
+          }
+        }
+      }
+    },
+    "CategoryItem" : {
+      "type" : "object",
+      "required" : [ "id", "name", "products" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "description" : "Identyfikator kategorii produktów"
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "Nazwa kategorii produktów"
+        },
+        "products" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProductShortItem"
+          }
+        }
+      }
+    },
+    "ProductShortItem" : {
+      "type" : "object",
+      "required" : [ "id", "ingredients", "name", "photoUrl", "shortDescription" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 123,
+          "description" : "Identyfikator produktu"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Cappuccino",
+          "description" : "Nazwa produktu"
+        },
+        "photoUrl" : {
+          "type" : "string",
+          "format" : "url",
+          "example" : "https://www.onet.pl/",
+          "description" : "Link do zdjęcia produktu"
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "example" : "The ratio of the parts of espresso, milk, and foam 1:1:1",
+          "description" : "Krótki opis produktu"
+        },
+        "ingredients" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProductShortItem_ingredients"
+          }
+        },
+        "sizes" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProductShortItem_sizes"
+          }
+        },
+        "additionals" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProductShortItem_additionals"
+          }
+        }
+      }
+    },
+    "ProductItem" : {
+      "type" : "object",
+      "required" : [ "id", "name", "photoUrl" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 123,
+          "description" : "Identyfikator produktu"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Cappuccino",
+          "description" : "Nazwa produktu"
+        },
+        "photoUrl" : {
+          "type" : "string",
+          "format" : "url",
+          "example" : "https://www.onet.pl/",
+          "description" : "Link do zdjęcia produktu"
+        },
+        "description" : {
+          "type" : "string",
+          "example" : "Hot cocktail based on Irish whiskey and espresso. Preparation: dissolve sugar in espresso, add whiskey, top with a cap of whipped milk. Here is a good coffee option for this drink.",
+          "description" : "Opis produktu"
+        },
+        "ingredientsDescriptions" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProductItem_ingredientsDescriptions"
+          }
+        }
+      }
+    },
+    "ClientItem" : {
+      "type" : "object",
+      "required" : [ "city", "fullName", "gender" ],
+      "properties" : {
+        "fullName" : {
+          "type" : "string",
+          "example" : "Jan Kowalski",
+          "description" : "Imię i nazwisko klienta"
+        },
+        "phoneNumber" : {
+          "type" : "string",
+          "example" : "48600123456",
+          "description" : "Numer telefonu"
+        },
+        "city" : {
+          "type" : "string",
+          "example" : "Warszawa",
+          "description" : "Nazwa miasta"
+        },
+        "birthDay" : {
+          "type" : "string",
+          "format" : "date",
+          "example" : "1980-01-01",
+          "description" : "Data urodzenia"
+        },
+        "photoBase" : {
+          "type" : "string",
+          "example" : "YWpzZGY7bGphc2Q7ZmtqbmFzO2RvZmE7c29pZGpmYTtvaXdlaml3dTI5MDNxdXJmYW9zamkgYWl3ZWp1cjs5MG51IGNpZmpxYSB1ZjA5cWF1bmY7MHEydWYwOWF1ZXdmOTt3aWZ1IGlhbnNqZGZpb2phc2Q7b2lmIGphb3NkaWZqYyBhO3dlOXJ1YTs5MjAzdXIwOTIzdXI5Y3dhamYgO3dmb2lqYXc5O3UycjA5M2p3YztmaSB3YWZpIGphOTIwO3IwOWMgZmo7YXdqZWY5YTtlandpb2Zld2phZm9pYWp3ZmFldw==",
+          "description" : "Zdjęcie użytkownika (zapis w base64)"
+        },
+        "gender" : {
+          "type" : "string",
+          "description" : "Płeć",
+          "enum" : [ "MALE", "FEMALE" ]
+        },
+        "piggy" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 0.0,
+          "description" : "Wartość skarbonki"
+        },
+        "currency" : {
+          "type" : "string",
+          "example" : "PLN",
+          "description" : "Waluta skarbonki"
+        }
+      }
+    },
+    "PaycardItem" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 14532,
+          "description" : "Identyfikator karty płatniczej"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Visa Card",
+          "description" : "Nazwa karty"
+        },
+        "number" : {
+          "type" : "string",
+          "example" : "**** **** **** 4321",
+          "description" : "Obfuskowany numer karty płatniczej"
+        },
+        "expired" : {
+          "type" : "string",
+          "example" : "11/21",
+          "description" : "Data ważności karty"
+        },
+        "type" : {
+          "type" : "string",
+          "description" : "Typ karty",
+          "enum" : [ "VISA", "MASTERCARD", "MAESTRO" ]
+        }
+      }
+    },
+    "OrderItem" : {
+      "type" : "object",
+      "required" : [ "coffeehouseId", "currency", "items", "localizationId", "orderAsap", "paymentMethod", "totalAmount" ],
+      "properties" : {
+        "coffeehouseId" : {
+          "type" : "integer",
+          "example" : 13456,
+          "description" : "Identyfikator sieci kawiarni"
+        },
+        "localizationId" : {
+          "type" : "integer",
+          "example" : 1234,
+          "description" : "Identyfikator kawiarni"
+        },
+        "orderAsap" : {
+          "type" : "boolean",
+          "example" : false,
+          "description" : "Czy zamówienie ma zostać wykonane ASAP?"
+        },
+        "orderTime" : {
+          "type" : "string",
+          "example" : "16:30",
+          "description" : "Czas zamówienia"
+        },
+        "items" : {
+          "$ref" : "#/definitions/OrderItem_items"
+        },
+        "totalAmount" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 14.5,
+          "description" : "Wartość zamówienia"
+        },
+        "currency" : {
+          "type" : "string",
+          "example" : "PLN",
+          "description" : "Waluta zamówienia"
+        },
+        "paymentMethod" : {
+          "type" : "string",
+          "description" : "Typ płatności",
+          "enum" : [ "PIGGY", "CARD", "BLIK", "PAYPAL" ]
+        },
+        "paycardId" : {
+          "type" : "integer",
+          "example" : 1,
+          "description" : "Identyfikator karty płatniczej"
+        }
+      }
+    },
+    "UserCreateRequest" : {
+      "type" : "object",
+      "properties" : {
+        "fullName" : {
+          "type" : "string",
+          "example" : "Jan Kowalski",
+          "description" : "Imię i nazwisko klienta"
+        },
+        "phoneNumber" : {
+          "type" : "string",
+          "example" : "48600123456",
+          "description" : "Numer telefonu"
+        },
+        "city" : {
+          "type" : "string",
+          "example" : "Warszawa",
+          "description" : "Nazwa miasta"
+        },
+        "birthDay" : {
+          "type" : "string",
+          "format" : "date",
+          "example" : "1980-01-01",
+          "description" : "Data urodzenia"
+        },
+        "gender" : {
+          "type" : "string",
+          "description" : "Płeć",
+          "enum" : [ "MALE", "FEMALE" ]
+        }
+      }
+    },
+    "UserCreateReply" : {
+      "type" : "object",
+      "required" : [ "appId", "sessionId", "transportKey" ],
+      "properties" : {
+        "appId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d7018748-6c54-4b01-90e6-d701748f0851",
+          "description" : "Identyfikator instalacji aplikacji"
+        },
+        "sessionId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d7018748-6c54-4b01-90e6-d701748f0851",
+          "description" : "Identyfikator sesji"
+        },
+        "transportKey" : {
+          "type" : "string",
+          "example" : "d70187486c544b0190e6d701748f0851d70187486c544b0190e6d701748f0851",
+          "description" : "Klucz do szyfrowania"
+        }
+      }
+    },
+    "UserSetPinReply" : {
+      "type" : "object",
+      "required" : [ "entrophy" ],
+      "properties" : {
+        "entrophy" : {
+          "type" : "string",
+          "example" : "d70187486c544b0190e6d701748f0851d70187486c544b0190e6d701748f0851",
+          "description" : "Losowy ciąg znaków potrzebny do zaszyfrowania pinu"
+        }
+      }
+    },
+    "UserSetPinRequest" : {
+      "type" : "object",
+      "required" : [ "crypto" ],
+      "properties" : {
+        "crypto" : {
+          "type" : "string",
+          "example" : "d70187486c544b0190e6d701748f0851d70187486c544b0190e6d701748f0851",
+          "description" : "Kryptogram"
+        }
+      }
+    },
+    "UserLoginReply" : {
+      "type" : "object",
+      "required" : [ "entrophy", "sessionId", "transportKey" ],
+      "properties" : {
+        "entrophy" : {
+          "type" : "string",
+          "example" : "d70187486c544b0190e6d701748f0851d70187486c544b0190e6d701748f0851",
+          "description" : "Losowy ciąg znaków potrzebny do logowania"
+        },
+        "sessionId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d7018748-6c54-4b01-90e6-d701748f0851",
+          "description" : "Identyfikator sesji"
+        },
+        "transportKey" : {
+          "type" : "string",
+          "example" : "d70187486c544b0190e6d701748f0851d70187486c544b0190e6d701748f0851",
+          "description" : "Klucz do szyfrowania"
+        }
+      }
+    },
+    "UserLoginRequest" : {
+      "type" : "object",
+      "required" : [ "appId", "crypto" ],
+      "properties" : {
+        "appId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d7018748-6c54-4b01-90e6-d701748f0851",
+          "description" : "Identyfikator instalacji aplikacji"
+        },
+        "crypto" : {
+          "type" : "string",
+          "example" : "d70187486c544b0190e6d701748f0851d70187486c544b0190e6d701748f0851",
+          "description" : "Kryptogram"
+        }
+      }
+    },
+    "PaycardAddRequest" : {
+      "type" : "object",
+      "required" : [ "ccv2", "expired", "holderName", "name", "numberCrypto", "type" ],
+      "properties" : {
+        "type" : {
+          "type" : "string",
+          "description" : "Typ karty płatniczej",
+          "enum" : [ "VISA", "MASTERCARD", "MAESTRO" ]
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Visa Elektor ze Sercem",
+          "description" : "Nazwa karty płatniczej"
+        },
+        "holderName" : {
+          "type" : "string",
+          "example" : "Jan Nowak",
+          "description" : "Posiadacz karty płatniczej"
+        },
+        "numberCrypto" : {
+          "type" : "string",
+          "example" : "d70187486c544b0190e6d701748f0851d70187486c544b0190e6d701748f0851",
+          "description" : "Zaszyfrowany numer karty płatniczej"
+        },
+        "expired" : {
+          "type" : "string",
+          "example" : "12/20",
+          "description" : "Data ważności karty"
+        },
+        "ccv2" : {
+          "type" : "string",
+          "example" : "284",
+          "description" : "Numer CCV2"
+        }
+      }
+    },
+    "PaycardAddReply" : {
+      "type" : "object",
+      "required" : [ "entrophy" ],
+      "properties" : {
+        "entrophy" : {
+          "type" : "string",
+          "example" : "d70187486c544b0190e6d701748f0851d70187486c544b0190e6d701748f0851",
+          "description" : "Losowy ciąg znaków do zaszyfrowania numeru karty"
+        }
+      }
+    },
+    "OrderPreauthRequest" : {
+      "type" : "object",
+      "required" : [ "coffehouseId", "items", "orderAsap", "paymentMethod", "totalAmount" ],
+      "properties" : {
+        "coffehouseId" : {
+          "type" : "integer",
+          "example" : 13456,
+          "description" : "Identyfikator sieci kawiarni"
+        },
+        "localizationId" : {
+          "type" : "integer",
+          "example" : 1234,
+          "description" : "Identyfikator kawiarni"
+        },
+        "orderAsap" : {
+          "type" : "boolean",
+          "example" : false,
+          "description" : "Czy zamówienie ma zostać wykonane ASAP?"
+        },
+        "orderTime" : {
+          "type" : "string",
+          "example" : "16:30",
+          "description" : "Czas zamówienia"
+        },
+        "items" : {
+          "$ref" : "#/definitions/OrderPreauthRequest_items"
+        },
+        "totalAmount" : {
+          "type" : "number",
+          "format" : "double",
+          "description" : "Wartość zamówienia"
+        },
+        "paymentMethod" : {
+          "type" : "string",
+          "description" : "Typ płatności",
+          "enum" : [ "PIGGY", "CARD", "BLIK", "PAYPAL" ]
+        },
+        "paycardId" : {
+          "type" : "integer",
+          "description" : "Identyfikator karty płatniczej"
+        }
+      }
+    },
+    "OrderPreauthReply" : {
+      "type" : "object",
+      "required" : [ "entrophy" ],
+      "properties" : {
+        "entrophy" : {
+          "type" : "string",
+          "example" : "d70187486c544b0190e6d701748f0851d70187486c544b0190e6d701748f0851",
+          "description" : "Losowy ciąg znaków do podpisania zamówienia"
+        }
+      }
+    },
+    "OrderCommitRequest" : {
+      "type" : "object",
+      "required" : [ "crypto" ],
+      "properties" : {
+        "crypto" : {
+          "type" : "string",
+          "example" : "d70187486c544b0190e6d701748f0851d70187486c544b0190e6d701748f0851",
+          "description" : "Kryptogram"
+        }
+      }
+    },
+    "OrderCommitReply" : {
+      "type" : "object",
+      "required" : [ "orderId" ],
+      "properties" : {
+        "orderId" : {
+          "type" : "string",
+          "example" : "1244-22-244",
+          "description" : "Numer zamówienia"
+        }
+      }
+    },
+    "FavouirteOrderModifyRequest" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "Poranna kawka",
+          "description" : "Nazwa ulubionego zamówienia"
+        },
+        "orderAsap" : {
+          "type" : "boolean",
+          "example" : false,
+          "description" : "Czy zamówienie ma zostać wykonane ASAP?"
+        },
+        "orderTime" : {
+          "type" : "string",
+          "example" : "6:30",
+          "description" : "Czas zamówienia"
+        }
+      }
+    },
+    "request" : {
+      "type" : "object",
+      "properties" : {
+        "photo" : {
+          "type" : "string",
+          "example" : "/wMmY9MVJyu4/AAAAABJRU5ErkJggg="
+        }
+      }
+    },
+    "inline_response_200" : {
+      "type" : "object",
+      "properties" : {
+        "balance" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 43.12,
+          "description" : "stan skarbonki"
+        },
+        "balanceCurrency" : {
+          "type" : "string",
+          "example" : "PLN",
+          "description" : "kod waluty"
+        },
+        "lastUpdate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "example" : "2017-07-21T17:32:28.000Z"
+        }
+      }
+    },
+    "balance" : {
+      "type" : "object",
+      "properties" : {
+        "balance" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 43.12,
+          "description" : "stan skarbonki"
+        },
+        "balanceCurrency" : {
+          "type" : "string",
+          "example" : "PLN",
+          "description" : "kod waluty"
+        }
+      }
+    },
+    "LocalizationItem_address" : {
+      "type" : "object",
+      "required" : [ "city", "house", "postalCode" ],
+      "properties" : {
+        "city" : {
+          "type" : "string",
+          "example" : "Warszawa",
+          "description" : "Miasto"
+        },
+        "postalCode" : {
+          "type" : "string",
+          "example" : "05-340",
+          "description" : "Kod pocztowy"
+        },
+        "street" : {
+          "type" : "string",
+          "example" : "Aleje Jerozolimskie",
+          "description" : "Nazwa ulicy"
+        },
+        "house" : {
+          "type" : "string",
+          "example" : "200a",
+          "description" : "Numer domu"
+        },
+        "flat" : {
+          "type" : "string",
+          "example" : "4",
+          "description" : "Numer mieszkania"
+        },
+        "post" : {
+          "type" : "string",
+          "example" : "Warszawa",
+          "description" : "Poczta"
+        }
+      }
+    },
+    "LocalizationItem_openingHours" : {
+      "type" : "object",
+      "required" : [ "friday", "monday", "saturday", "sunday", "thursday", "tuesday", "wednesday" ],
+      "properties" : {
+        "monday" : {
+          "type" : "string",
+          "example" : "10:00 - 18:00",
+          "description" : "Godziny otwarcia w poniedziałek"
+        },
+        "tuesday" : {
+          "type" : "string",
+          "example" : "10:00 - 18:00",
+          "description" : "Godziny otwarcia w wtorek"
+        },
+        "wednesday" : {
+          "type" : "string",
+          "example" : "10:00 - 18:00",
+          "description" : "Godziny otwarcia w środa"
+        },
+        "thursday" : {
+          "type" : "string",
+          "example" : "10:00 - 18:00",
+          "description" : "Godziny otwarcia w czwartek"
+        },
+        "friday" : {
+          "type" : "string",
+          "example" : "10:00 - 18:00",
+          "description" : "Godziny otwarcia w piątek"
+        },
+        "saturday" : {
+          "type" : "string",
+          "example" : "10:00 - 18:00",
+          "description" : "Godziny otwarcia w sobotę"
+        },
+        "sunday" : {
+          "type" : "string",
+          "example" : "10:00 - 18:00",
+          "description" : "Godziny otwarcia w niedziele"
+        }
+      },
+      "description" : "Godziny otwarcia"
+    },
+    "LocalizationItem_location" : {
+      "type" : "object",
+      "required" : [ "latitude", "longitude" ],
+      "properties" : {
+        "latitude" : {
+          "type" : "string",
+          "example" : "32.123456",
+          "description" : "Szerokość geograficzna"
+        },
+        "longitude" : {
+          "type" : "string",
+          "example" : "153.23456",
+          "description" : "Długość geograficzna"
+        }
+      }
+    },
+    "ProductShortItem_ingredients" : {
+      "type" : "object",
+      "required" : [ "color", "name" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "Kawa",
+          "description" : "Nazwa składnika"
+        },
+        "color" : {
+          "type" : "string",
+          "example" : "#00FFFF",
+          "description" : "Kolor składnika"
+        }
+      }
+    },
+    "ProductShortItem_sizes" : {
+      "type" : "object",
+      "required" : [ "currency", "id", "name", "price" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 1,
+          "description" : "Identyfikator rozmiaru"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "XXL",
+          "description" : "Nazwa rozmiaru produktu"
+        },
+        "price" : {
+          "type" : "number",
+          "example" : 5.44,
+          "description" : "Cena produktu"
+        },
+        "currency" : {
+          "type" : "string",
+          "example" : "PLN",
+          "description" : "Waluta ceny"
+        }
+      }
+    },
+    "ProductShortItem_additionals" : {
+      "type" : "object",
+      "required" : [ "currency", "id", "name", "price" ],
+      "properties" : {
+        "id" : {
+          "type" : "integer",
+          "example" : 1,
+          "description" : "Identyfikator dodatku"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "XXL",
+          "description" : "Nazwa dodatku do produktu"
+        },
+        "price" : {
+          "type" : "number",
+          "example" : 5.44,
+          "description" : "Cena dodatku"
+        },
+        "currency" : {
+          "type" : "string",
+          "example" : "PLN",
+          "description" : "Waluta ceny"
+        }
+      }
+    },
+    "ProductItem_ingredientsDescriptions" : {
+      "type" : "object",
+      "required" : [ "description", "name" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "Coffee",
+          "description" : "Składnik produktu"
+        },
+        "description" : {
+          "type" : "string",
+          "example" : "150-200 ml. freshly brewed coffee - coffee filter, we chose DARK CHOCOLATE, a mixture with a sweet caramel aroma, firm body and the taste of dark chocolate and hazeinuts;",
+          "description" : "Opis przygotowania składnika"
+        }
+      }
+    },
+    "OrderItem_items" : {
+      "type" : "object",
+      "required" : [ "count", "productId" ],
+      "properties" : {
+        "productId" : {
+          "type" : "integer",
+          "example" : 1234,
+          "description" : "Identyfikator produktu"
+        },
+        "size" : {
+          "type" : "integer",
+          "example" : 1,
+          "description" : "Identyfikator rozmiaru"
+        },
+        "additionals" : {
+          "type" : "array",
+          "example" : [ 333 ],
+          "items" : {
+            "type" : "integer",
+            "description" : "Identyfikator dodatku"
+          }
+        },
+        "count" : {
+          "type" : "integer",
+          "description" : "Liczba"
+        }
+      }
+    },
+    "OrderPreauthRequest_items" : {
+      "type" : "object",
+      "required" : [ "count", "productId" ],
+      "properties" : {
+        "productId" : {
+          "type" : "integer",
+          "example" : 1234,
+          "description" : "Identyfikator produktu"
+        },
+        "size" : {
+          "type" : "integer",
+          "example" : 1,
+          "description" : "Identyfikator rozmiaru"
+        },
+        "additional" : {
+          "type" : "array",
+          "items" : {
+            "type" : "integer",
+            "example" : 333,
+            "description" : "Identyfikator dodatku"
+          }
+        },
+        "count" : {
+          "type" : "integer",
+          "description" : "Liczba"
+        }
+      }
+    }
+  }
+}
