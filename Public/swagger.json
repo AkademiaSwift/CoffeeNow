@@ -15,7 +15,7 @@
     }
   },
   "host" : "coffeenow.apki.mobi",
-  "basePath" : "",
+  "basePath" : "/",
   "tags" : [ {
     "name" : "no-session",
     "description" : "Operacje dozwolone bez przekazywania sesji"
